@@ -3,13 +3,21 @@ const Tour = require('../models/tourModel');
 exports.getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
+
     const excludedFileds = ['page', 'sort', 'limit', 'fields'];
     excludedFileds.forEach((el) => delete queryObj[el]);
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
 
-    const query = Tour.find(JSON.parse(queryStr));
+    let query = Tour.find(JSON.parse(queryStr));
+
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' ');
+      query = query.sort(sortBy);
+    } else {
+      query = query.sort('-createdAt');
+    }
 
     // const query = Tour.find()
     //   .where('duration')
