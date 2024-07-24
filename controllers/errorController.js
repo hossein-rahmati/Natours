@@ -1,3 +1,23 @@
+const AppError = require('../utils/appError');
+
+const handleCastErrorDB = (err) => {
+  const message = `Invalid ${err.path}: ${err.value}.`;
+  return new AppError(message, 400);
+};
+
+const handleDuplicateFiledsDB = (err) => {
+  const value = err.keyValue.name;
+  const message = `Duplicate field value: ${value}.`;
+  return new AppError(message, 400);
+};
+
+const handleValidationErrorDB = (err) => {
+  const errors = Object.values(err.errors).map((el) => el.message);
+
+  const message = `Invalid Input data. ${errors.join('. ')}`;
+  return new AppError(message, 400);
+};
+
 const sendErrorDev = (err, res) => {
   res.status(err.statusCode).json({
     status: err.status,
@@ -17,8 +37,6 @@ const sendErrorProd = (err, res) => {
 
     // Programming, or other unknown error: don't leak error details
   } else {
-    console.error('ERROR!');
-
     res.status(500).json({
       status: 'error',
       message: 'Something went wrong!',
@@ -33,6 +51,10 @@ module.exports = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else if (process.env.NODE_ENV === 'production') {
+    if (err.name === 'CastError') err = handleCastErrorDB(err);
+    if (err.code === 11000) err = handleDuplicateFiledsDB(err);
+    if (err.name === 'ValidationError') err = handleValidationErrorDB(err);
+
     sendErrorProd(err, res);
   }
 };
