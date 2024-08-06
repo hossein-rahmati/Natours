@@ -1,9 +1,11 @@
+/* eslint-disable import/no-extraneous-dependencies */
 const morgan = require('morgan');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const MongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userTouter');
@@ -37,8 +39,22 @@ app.use(express.json({ limit: '10kb' }));
 // Data sanitization against NoSql query injection
 app.use(MongoSanitize());
 
-// Data sanitization against against XSS
+// Data sanitization against XSS
 app.use(xss());
+
+// Prevents parameter pollution
+app.use(
+  hpp({
+    whitelist: [
+      'duration',
+      'ratingsAverage',
+      'ratingsQunatity',
+      'maxGroupSize',
+      'difficulty',
+      'price',
+    ],
+  }),
+);
 
 // Serving static files
 app.use(express.static(`${__dirname}/public`));
