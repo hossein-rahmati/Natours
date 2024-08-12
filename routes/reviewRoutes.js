@@ -5,14 +5,12 @@ const authController = require('../controllers/authController');
 
 const router = express.Router({ mergeParams: true }); // merging params to access :tourId wich comes from other router
 
-// POST /tour/fad3t552/reviews
-// POST /reviews
+router.use(authController.protect);
 
 router
   .route('/')
   .get(reviewController.getAllReviews)
   .post(
-    authController.protect,
     authController.restrict('user'),
     reviewController.setTourUserIds,
     reviewController.createReview,
@@ -21,7 +19,13 @@ router
 router
   .route('/:id')
   .get(reviewController.getReview)
-  .patch(reviewController.updateReview)
-  .delete(reviewController.deleteReview);
+  .patch(
+    authController.restrict('user', 'admin'),
+    reviewController.updateReview,
+  )
+  .delete(
+    authController.restrict('user', 'admin'),
+    reviewController.deleteReview,
+  );
 
 module.exports = router;
