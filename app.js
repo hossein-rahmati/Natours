@@ -8,7 +8,7 @@ const xss = require('xss-clean');
 const hpp = require('hpp');
 
 const tourRouter = require('./routes/tourRouter');
-const userRouter = require('./routes/userTouter');
+const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRoutes');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
