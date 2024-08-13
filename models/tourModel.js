@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
-// const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -111,6 +110,9 @@ const tourSchema = new mongoose.Schema(
   },
 );
 
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ sliug: 1 });
+
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
 });
@@ -127,27 +129,12 @@ tourSchema.pre('save', function (next) {
   next();
 });
 
-// tourSchema.pre('save', async function (next) {
-//   const guidesPromeses = this.guides.map(async (id) => await User.findById(id));
-//   this.guides = await Promise.all(guidesPromeses);
-//   next();
-// });
-
-// tourSchema.post('save', function (doc, next) {
-//   console.log(doc);
-//   next();
-// });
-
 tourSchema.pre(/^find/, function (next) {
   this.find({ secretTour: { $ne: true } });
   this.start = Date.now();
   next();
 });
 
-// tourSchema.post(/^find/, function (docs, next) {
-//   console.log(`Query took ${Date.now() - this.start} milliseconds`);
-//   next();
-// });
 tourSchema.pre(/^find/, function (next) {
   this.populate({
     path: 'guides',
