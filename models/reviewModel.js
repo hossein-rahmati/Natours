@@ -75,6 +75,8 @@ reviewsSchema.statics.caclAverageRatings = async function (tourId) {
   }
 };
 
+reviewsSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 reviewsSchema.post('save', function (next) {
   // this.constructor => current schema (Review)
   this.constructor.caclAverageRatings(this.tour);
