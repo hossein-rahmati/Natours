@@ -22,6 +22,8 @@ var userRouter = require('./routes/userRouter');
 
 var reviewRouter = require('./routes/reviewRoutes');
 
+var viewRouter = require('./routes/viewRoutes');
+
 var AppError = require('./utils/appError');
 
 var globalErrorHandler = require('./controllers/errorController');
@@ -61,21 +63,7 @@ app.use(hpp({
   whitelist: ['duration', 'ratingsAverage', 'ratingsQunatity', 'maxGroupSize', 'difficulty', 'price']
 })); // Routes
 
-app.get('/', function (req, res) {
-  res.status(200).render('base', {
-    tour: 'The Forest Hiker'
-  });
-});
-app.get('/overview', function (req, res) {
-  res.status(200).render('overview', {
-    title: 'All Tours'
-  });
-});
-app.get('/tour', function (req, res) {
-  res.status(200).render('tour', {
-    title: 'The Forest Hiker Tour'
-  });
-});
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
