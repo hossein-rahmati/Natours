@@ -64,12 +64,12 @@ reviewsSchema.statics.caclAverageRatings = async function (tourId) {
 
   if (stats.length > 0) {
     await Tour.findByIdAndUpdate(tourId, {
-      ratingsQunatity: stats[0].nRating,
+      ratingsQuantity: stats[0].nRating,
       ratingsAverage: stats[0].avgRating,
     });
   } else {
     await Tour.findByIdAndUpdate(tourId, {
-      ratingsQunatity: 0,
+      ratingsQuantity: 0,
       ratingsAverage: 4.5,
     });
   }
