@@ -2,10 +2,11 @@ const morgan = require('morgan');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
-const MongoSanitize = require('express-mongo-sanitize');
+const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const path = require('node:path');
+const cookieParser = require('cookie-parser');
 
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
@@ -23,8 +24,8 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-//Set security HTTP headers
-app.use(helmet());
+//Set security HTTP headers - setting contentSecurityPolicy to false to allow access to CDNs
+app.use(helmet({ contentSecurityPolicy: false }));
 
 // Development logging
 app.use(express.json());
@@ -42,9 +43,10 @@ app.use('/api', limiter);
 
 // Body parser, reading data from body into req.body
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser());
 
 // Data sanitization against NoSql query injection
-app.use(MongoSanitize());
+app.use(mongoSanitize());
 
 // Data sanitization against XSS
 app.use(xss());
@@ -62,6 +64,11 @@ app.use(
     ],
   }),
 );
+
+app.use((req, res, next) => {
+  console.log(req.cookies);
+  next();
+});
 
 // Routes
 
