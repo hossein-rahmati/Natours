@@ -83,7 +83,6 @@ exports.protect = catchAsync(async (req, res, next) => {
   // Verfication token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
-  // Check if users exits
   const currentUser = await User.findById(decoded.id);
   if (!currentUser) {
     return next(
@@ -102,6 +101,45 @@ exports.protect = catchAsync(async (req, res, next) => {
   req.user = currentUser;
   next();
 });
+
+// these two middlewares blew is only used for rendering pages, no errors
+exports.isLoggedIn = async (req, res, next) => {
+  // Getting token
+  if (req.cookies.jwt) {
+    try {
+      // Verfication token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET,
+      );
+
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) {
+        return next();
+      }
+
+      // Check if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+
+      // there is a logged in user
+      res.locals.user = currentUser;
+      return next();
+    } catch (err) {
+      return next();
+    }
+  }
+  next();
+};
+
+exports.logout = (req, res) => {
+  res.cookie('jwt', 'loggedout', {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: 'success' });
+};
 
 exports.restrict =
   (...roles) =>

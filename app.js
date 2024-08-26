@@ -65,11 +65,6 @@ app.use(
   }),
 );
 
-app.use((req, res, next) => {
-  console.log(req.cookies);
-  next();
-});
-
 // Routes
 
 app.use('/', viewRouter);
