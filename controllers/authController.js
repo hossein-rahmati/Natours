@@ -29,6 +29,7 @@ const createSendToken = (user, statusCode, res) => {
 
   //removes passoword from response
   user.password = undefined;
+  user.passwordConfirm = undefined;
 
   res.status(statusCode).json({
     status: 'success',
